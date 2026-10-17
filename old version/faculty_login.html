@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <h1>BVP Faculty Portal</h1>
+
+        <p>Faculty Login</p>
+
+        {% if error %}
+        <div class="error-box">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+
+            <label>Faculty Code</label>
+
+            <input
+                type="text"
+                name="faculty_code"
+                placeholder="Enter Faculty Code"
+                required
+            >
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter Password"
+                required
+            >
+
+            <button
+                type="submit"
+                class="main-btn">
+
+                Login
+
+            </button>
+
+        </form>
+
+        <br>
+
+        <div class="bottom-links">
+
+            <a href="/faculty/register">
+
+                Create Faculty Account
+
+            </a>
+
+            <a href="/">
+
+                Home
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

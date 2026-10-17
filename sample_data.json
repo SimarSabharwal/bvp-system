@@ -1,0 +1,422 @@
+{
+  "source": "app.py",
+  "note": "Literal sample data extracted from the current in-memory dictionaries; registration dictionaries are runtime-only and start empty.",
+  "STUDENTS": {
+    "0251BCA001": {
+      "password": "1234",
+      "name": "Student Morning",
+      "shift": "M"
+    },
+    "0251BCA101": {
+      "password": "1234",
+      "name": "Student Afternoon",
+      "shift": "A"
+    }
+  },
+  "FACULTY": {
+    "MKC": {
+      "password": "mkc123",
+      "name": "Dr. Mahesh Kumar Chaubey"
+    }
+  },
+  "SUBJECTS": {
+    "JP": "Java Programming",
+    "OS": "Operating Systems",
+    "SE": "Software Engineering",
+    "ST": "Statistics",
+    "SUM": "Start-up Management",
+    "LAB JP": "Java Programming Lab",
+    "LAB ORACLE": "Oracle Lab",
+    "YOGA": "Yoga & Meditation",
+    "BREAK": "Break"
+  },
+  "FACULTY_NAME": {
+    "MGS": "Dr. Megha Sehgal",
+    "MAG": "Dr. Mansi Agnihotri",
+    "DSB": "Dr. Daljeet Singh Bawa",
+    "UG": "Dr. Usha Gupta",
+    "MKC": "Dr. Mahesh Kumar Chaubey",
+    "AK": "Dr. Ajay Kumar",
+    "AKR": "Mr. Amit Kumar",
+    "YK": "Mr. Yashwant Kumar",
+    "NPN": "Mr. Nripesh Kumar"
+  },
+  "REGISTERED_STUDENTS": {},
+  "REGISTERED_FACULTY": {},
+  "MORNING": {
+    "Monday": [
+      {
+        "start": "09:10",
+        "end": "10:05",
+        "subject": "LAB JP",
+        "faculty": "MGS",
+        "room": "AK108"
+      },
+      {
+        "start": "10:10",
+        "end": "11:05",
+        "subject": "JP",
+        "faculty": "MGS",
+        "room": "AK108"
+      },
+      {
+        "start": "11:05",
+        "end": "11:20",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "11:20",
+        "end": "12:15",
+        "subject": "OS",
+        "faculty": "MAG",
+        "room": "UG104"
+      },
+      {
+        "start": "12:20",
+        "end": "01:15",
+        "subject": "LAB ORACLE",
+        "faculty": "MKC",
+        "room": "FF LAB"
+      }
+    ],
+    "Tuesday": [
+      {
+        "start": "09:10",
+        "end": "10:05",
+        "subject": "SUM",
+        "faculty": "AK",
+        "room": "108"
+      },
+      {
+        "start": "10:10",
+        "end": "11:05",
+        "subject": "SE",
+        "faculty": "DSB",
+        "room": "109"
+      },
+      {
+        "start": "11:05",
+        "end": "11:20",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "11:20",
+        "end": "12:15",
+        "subject": "LAB JP",
+        "faculty": "MGS",
+        "room": "AK108"
+      },
+      {
+        "start": "12:20",
+        "end": "01:15",
+        "subject": "YOGA",
+        "faculty": "AKR",
+        "room": "108"
+      }
+    ],
+    "Wednesday": [
+      {
+        "start": "09:10",
+        "end": "10:05",
+        "subject": "LAB ORACLE",
+        "faculty": "MKC",
+        "room": "FF LAB"
+      },
+      {
+        "start": "10:10",
+        "end": "11:05",
+        "subject": "OS",
+        "faculty": "MAG",
+        "room": "UG104"
+      },
+      {
+        "start": "11:05",
+        "end": "11:20",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "11:20",
+        "end": "12:15",
+        "subject": "JP",
+        "faculty": "MGS",
+        "room": "AK108"
+      },
+      {
+        "start": "12:20",
+        "end": "01:15",
+        "subject": "ST",
+        "faculty": "UG",
+        "room": "UG104"
+      }
+    ],
+    "Thursday": [
+      {
+        "start": "09:10",
+        "end": "10:05",
+        "subject": "JP",
+        "faculty": "MGS",
+        "room": "AK108"
+      },
+      {
+        "start": "10:10",
+        "end": "11:05",
+        "subject": "SE",
+        "faculty": "DSB",
+        "room": "109"
+      },
+      {
+        "start": "11:05",
+        "end": "11:20",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "11:20",
+        "end": "12:15",
+        "subject": "SUM",
+        "faculty": "AK",
+        "room": "108"
+      },
+      {
+        "start": "12:20",
+        "end": "01:15",
+        "subject": "ST",
+        "faculty": "UG",
+        "room": "UG104"
+      }
+    ],
+    "Friday": [
+      {
+        "start": "09:10",
+        "end": "10:05",
+        "subject": "ST",
+        "faculty": "UG",
+        "room": "UG104"
+      },
+      {
+        "start": "10:10",
+        "end": "11:05",
+        "subject": "OS",
+        "faculty": "MAG",
+        "room": "UG104"
+      },
+      {
+        "start": "11:05",
+        "end": "11:20",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "11:20",
+        "end": "12:15",
+        "subject": "SE",
+        "faculty": "DSB",
+        "room": "109"
+      },
+      {
+        "start": "12:20",
+        "end": "01:15",
+        "subject": "YOGA",
+        "faculty": "AKR",
+        "room": "108"
+      }
+    ],
+    "Saturday": []
+  },
+  "AFTERNOON": {
+    "Monday": [
+      {
+        "start": "01:20",
+        "end": "02:15",
+        "subject": "ST",
+        "faculty": "YK",
+        "room": "UG104"
+      },
+      {
+        "start": "02:15",
+        "end": "03:10",
+        "subject": "SUM",
+        "faculty": "AK",
+        "room": "108"
+      },
+      {
+        "start": "03:10",
+        "end": "03:35",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "03:35",
+        "end": "04:30",
+        "subject": "JP",
+        "faculty": "NPN",
+        "room": "AK108"
+      },
+      {
+        "start": "04:30",
+        "end": "05:25",
+        "subject": "OS",
+        "faculty": "DSB",
+        "room": "UG104"
+      }
+    ],
+    "Tuesday": [
+      {
+        "start": "01:20",
+        "end": "02:15",
+        "subject": "YOGA",
+        "faculty": "AKR",
+        "room": "108"
+      },
+      {
+        "start": "02:15",
+        "end": "03:10",
+        "subject": "ST",
+        "faculty": "YK",
+        "room": "UG104"
+      },
+      {
+        "start": "03:10",
+        "end": "03:35",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "03:35",
+        "end": "04:30",
+        "subject": "LAB ORACLE",
+        "faculty": "MKC",
+        "room": "FF LAB"
+      },
+      {
+        "start": "04:30",
+        "end": "05:25",
+        "subject": "SE",
+        "faculty": "MAG",
+        "room": "109"
+      }
+    ],
+    "Wednesday": [
+      {
+        "start": "01:20",
+        "end": "02:15",
+        "subject": "LAB JP",
+        "faculty": "NPN",
+        "room": "AK108"
+      },
+      {
+        "start": "02:15",
+        "end": "03:10",
+        "subject": "JP",
+        "faculty": "NPN",
+        "room": "AK108"
+      },
+      {
+        "start": "03:10",
+        "end": "03:35",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "03:35",
+        "end": "04:30",
+        "subject": "SUM",
+        "faculty": "AK",
+        "room": "108"
+      },
+      {
+        "start": "04:30",
+        "end": "05:25",
+        "subject": "SE",
+        "faculty": "MAG",
+        "room": "109"
+      }
+    ],
+    "Thursday": [
+      {
+        "start": "01:20",
+        "end": "02:15",
+        "subject": "LAB JP",
+        "faculty": "NPN",
+        "room": "AK108"
+      },
+      {
+        "start": "02:15",
+        "end": "03:10",
+        "subject": "JP",
+        "faculty": "NPN",
+        "room": "AK108"
+      },
+      {
+        "start": "03:10",
+        "end": "03:35",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "03:35",
+        "end": "04:30",
+        "subject": "LAB ORACLE",
+        "faculty": "MKC",
+        "room": "FF LAB"
+      },
+      {
+        "start": "04:30",
+        "end": "05:25",
+        "subject": "OS",
+        "faculty": "DSB",
+        "room": "UG104"
+      }
+    ],
+    "Friday": [
+      {
+        "start": "01:20",
+        "end": "02:15",
+        "subject": "YOGA",
+        "faculty": "AKR",
+        "room": "108"
+      },
+      {
+        "start": "02:15",
+        "end": "03:10",
+        "subject": "ST",
+        "faculty": "YK",
+        "room": "UG104"
+      },
+      {
+        "start": "03:10",
+        "end": "03:35",
+        "subject": "BREAK",
+        "faculty": "",
+        "room": ""
+      },
+      {
+        "start": "03:35",
+        "end": "04:30",
+        "subject": "OS",
+        "faculty": "DSB",
+        "room": "UG104"
+      },
+      {
+        "start": "04:30",
+        "end": "05:25",
+        "subject": "SE",
+        "faculty": "MAG",
+        "room": "109"
+      }
+    ],
+    "Saturday": []
+  }
+}

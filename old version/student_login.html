@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <h1>BVP Student Portal</h1>
+
+        <p>Login to access your dashboard</p>
+
+        {% if error %}
+        <div class="error-box">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+
+            <label>ERP ID</label>
+
+            <input
+                type="text"
+                name="erp_id"
+                placeholder="Enter ERP ID"
+                required
+            >
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter Password"
+                required
+            >
+
+            <button type="submit" class="main-btn">
+
+                Login
+
+            </button>
+
+        </form>
+
+        <br>
+
+        <div class="bottom-links">
+
+            <a href="/student/register">
+
+                Create Student Account
+
+            </a>
+
+            <a href="/">
+
+                Home
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

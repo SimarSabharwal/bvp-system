@@ -1,0 +1,22 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv*/
+venv/
+
+# Seed/import reports may contain local data.
+reports/
+
+# Logs and editor cache
+*.log
+.obsidian/
+
+# Disposable local authenticated demo PostgreSQL cluster
+.local-demo-postgres/

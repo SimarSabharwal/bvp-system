@@ -1,0 +1,522 @@
+openapi: 3.1.0
+info:
+  title: Student System API
+  version: 1.0.0
+  description: Versioned API with bounded queries and server-enforced role and record ownership. See ROLE_ACCESS_MATRIX.md for Student, Teacher, and Admin interface access.
+servers:
+  - url: /api/v1
+paths:
+  /health:
+    get:
+      operationId: getLiveness
+      summary: Check whether the API process is running
+      responses:
+        '200':
+          description: API process is alive; this does not imply database readiness.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    const: ok
+        '500':
+          description: Unexpected API error with a request identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /ready:
+    get:
+      operationId: getReadiness
+      summary: Check whether the configured database is available
+      responses:
+        '200': {description: API and database are ready}
+        '503': {description: Database is missing or unavailable}
+  /ws/events:
+    x-websocket:
+      summary: Receive only the signed-in user's persisted notifications
+      security: [{sessionCookie: []}]
+      queryParameters:
+        - {name: after_id, type: integer, minimum: 0, description: Resume after this notification ID}
+      serverMessages:
+        - {name: connected, payload: {type: connected, after_id: integer}}
+        - {name: notification, payload: {type: notification, data: object}}
+        - {name: refresh, payload: {type: refresh, cursor: integer}}
+        - {name: heartbeat, payload: {type: heartbeat, cursor: integer}}
+        - {name: session_expired, payload: {type: session_expired}}
+  /auth/login:
+    post:
+      operationId: login
+      summary: Start a user session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login_id, password]
+              properties:
+                login_id: {type: string, maxLength: 100}
+                password: {type: string, maxLength: 1024}
+                active_role: {type: string, enum: [STUDENT, TEACHER, ADMIN], description: Optional interface selection; must be one of the authenticated account's database-backed memberships.}
+      responses:
+        '200': {description: Authenticated; response contains the user ID, current roles, and selected active_role. Clients may show only matching role interfaces. Sets an HTTP-only session cookie.}
+        '403': {description: Requested interface is not one of the authenticated account's roles.}
+        '401': {description: Generic authentication failure.}
+        '429': {description: Login temporarily throttled.}
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      security: [{sessionCookie: []}]
+      responses:
+        '200': {description: Current user, active roles, and compact profile.}
+        '401': {description: Authentication required.}
+  /auth/csrf:
+    get:
+      operationId: getCsrfToken
+      security: [{sessionCookie: []}]
+      responses:
+        '200': {description: Session-bound token for cookie-authenticated write requests.}
+  /auth/logout:
+    post:
+      operationId: logout
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses:
+        '200': {description: Session cleared.}
+        '403': {description: CSRF validation failed.}
+  /students/me:
+    get:
+      operationId: getStudentProfile
+      security: [{sessionCookie: []}]
+      responses:
+        '200': {description: Signed-in student's own profile and active section enrollment.}
+        '403': {description: Student role required.}
+  /teachers/me:
+    get:
+      operationId: getTeacherProfile
+      security: [{sessionCookie: []}]
+      responses:
+        '200': {description: Signed-in teacher's own profile.}
+        '403': {description: Teacher role required.}
+  /admin/{resource}:
+    get:
+      operationId: listMasterData
+      summary: List a supported master-data collection
+      description: Admin-only. Supported resources include users, students, teachers, academic-years, courses, sections, subjects, section-subjects, teacher-subjects, student-enrollments, teaching-assignments, rooms, and room-features. Results have a maximum page size of 100 and a field allowlist per resource.
+      security: [{sessionCookie: []}]
+      parameters:
+        - {name: resource, in: path, required: true, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: fields, in: query, schema: {type: string}, description: Comma-separated allowlisted fields.}
+      responses:
+        '200': {description: Bounded collection and next offset.}
+        '401': {description: Authentication required.}
+        '403': {description: Admin role required.}
+    post:
+      operationId: createMasterData
+      summary: Create a master-data record or provision a user/profile
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters:
+        - {name: resource, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object}
+      responses:
+        '201': {description: Created; response contains a resource ID and status only.}
+        '400': {description: Invalid or unsupported input.}
+        '409': {description: Unique or relationship constraint conflict.}
+  /admin/{resource}/{resource_id}:
+    get:
+      operationId: getMasterData
+      security: [{sessionCookie: []}]
+      parameters:
+        - {name: resource, in: path, required: true, schema: {type: string}}
+        - {name: resource_id, in: path, required: true, schema: {type: string}, description: Composite-key components are comma-separated.}
+      responses:
+        '200': {description: Allowlisted detail representation.}
+        '404': {description: Resource not found.}
+    patch:
+      operationId: updateMasterData
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters:
+        - {name: resource, in: path, required: true, schema: {type: string}}
+        - {name: resource_id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object}
+      responses:
+        '200': {description: Updated; compact ID and status response.}
+        '409': {description: Relationship or final-admin constraint conflict.}
+    delete:
+      operationId: deleteMasterData
+      description: User and student/teacher profile records are retained for relationship integrity and must be deactivated through their account instead of deleted.
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters:
+        - {name: resource, in: path, required: true, schema: {type: string}}
+        - {name: resource_id, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Deleted.}
+        '409': {description: Referenced records prevent deletion.}
+  /lookups/{resource}:
+    get:
+      operationId: lookupMasterData
+      summary: Read a compact lookup list
+      security: [{sessionCookie: []}]
+      parameters:
+        - {name: resource, in: path, required: true, schema: {type: string, enum: [academic-years, courses, sections, subjects, rooms, teachers]}}
+      responses:
+        '200': {description: At most 100 compact lookup rows; excludes student and credential data.}
+        '403': {description: Authenticated role required.}
+  /admin/timetable-versions:
+    post:
+      summary: Create a draft timetable version
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'201': {description: Draft version created}}
+  /admin/smart-timetables/generate:
+    post:
+      operationId: generateSmartTimetableDrafts
+      summary: Create conflict-checked draft versions for selected course sections
+      description: Admin-only. Creates four recurring entries per selected weekday and section from course/semester-matched curricula, active teaching assignments, suitable rooms and configured shift windows. Returns required dates and class-level holiday/exam exclusions. Does not publish or create dated sessions.
+      security: [{sessionCookie: [], csrfHeader: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [academic_year_id, course_ids, effective_from, effective_to, weekdays, morning_start, morning_end, morning_lecture_minutes, morning_break_minutes, afternoon_start, afternoon_end, afternoon_lecture_minutes, afternoon_break_minutes, lectures_per_day]
+              properties:
+                academic_year_id: {type: integer, minimum: 1}
+                course_ids: {type: array, items: {type: integer, minimum: 1}, minItems: 1}
+                effective_from: {type: string, format: date}
+                effective_to: {type: string, format: date}
+                weekdays: {type: array, items: {type: integer, minimum: 0, maximum: 6}, minItems: 1, uniqueItems: true}
+                morning_start: {type: string, example: '09:10'}
+                morning_end: {type: string, example: '13:15'}
+                morning_lecture_minutes: {type: integer, minimum: 1, maximum: 180}
+                morning_break_minutes: {type: integer, minimum: 0, maximum: 60}
+                afternoon_start: {type: string, example: '13:30'}
+                afternoon_end: {type: string, example: '16:30'}
+                afternoon_lecture_minutes: {type: integer, minimum: 1, maximum: 180}
+                afternoon_break_minutes: {type: integer, minimum: 0, maximum: 60}
+                lectures_per_day: {type: integer, const: 4}
+      responses:
+        '201': {description: Draft versions, generated recurring entries, required dates and event exclusions. Versions are unpublished.}
+        '400': {description: Invalid input or date range.}
+        '403': {description: Admin role required.}
+        '409': {description: Existing timetable period or relationship conflict; nothing saved.}
+        '422': {description: Missing curriculum/assignment/room or the schedule cannot meet hard constraints.}
+  /admin/mock-data/seed:
+    post:
+      operationId: seedDemoAcademicData
+      summary: Load the opt-in mock academic dataset
+      description: Development/demo only. Creates mock BCA/BBA/B course, section, catalog, user/profile, enrollment, teacher qualification/assignment, room and academic-year rows. Requires the administrator to choose dates and a shared mock-account password; never runs during application startup and is unavailable in production.
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses:
+        '201': {description: Linked mock data created; credentials use the supplied shared password and store only password hashes.}
+        '400': {description: Invalid date or password input.}
+        '403': {description: Admin role required.}
+        '404': {description: Demo seeding is unavailable in production.}
+        '409': {description: Mock records already exist or conflict; no partial data is saved.}
+  /admin/timetable-versions/{version_id}/entries:
+    post:
+      summary: Add an entry to a draft timetable
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: version_id, required: true, schema: {type: integer}}]
+      responses: {'201': {description: Entry created}, '409': {description: Recurring overlap}}
+  /admin/timetable-entries/{entry_id}:
+    patch:
+      summary: Update an entry in a draft timetable
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: entry_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Entry updated}, '409': {description: Published timetable entries are immutable}}
+    delete:
+      summary: Delete an entry from a draft timetable
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: entry_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Entry deleted}, '409': {description: Published timetable entries are immutable}}
+  /admin/timetable-versions/{version_id}:
+    get:
+      summary: Read timetable version and entries
+      security: [{sessionCookie: []}]
+      parameters: [{in: path, name: version_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Version detail}}
+    patch:
+      summary: Update draft version metadata
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: version_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Version updated}}
+    delete:
+      summary: Delete a draft version and its entries
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: version_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Draft deleted}, '409': {description: Published versions are retained}}
+  /admin/timetable-versions/{version_id}/publish:
+    post:
+      summary: Publish a timetable and generate dated sessions atomically
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: version_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Published}, '409': {description: Schedule conflict}}
+  /schedule/me:
+    get:
+      summary: Read the authenticated student's or teacher's bounded timetable
+      security: [{sessionCookie: []}]
+      parameters:
+        - {in: query, name: date, schema: {type: string, format: date}}
+        - {in: query, name: from, schema: {type: string, format: date}}
+        - {in: query, name: to, schema: {type: string, format: date}}
+        - {in: query, name: view_as, schema: {type: string, enum: [STUDENT, TEACHER]}, description: Required to choose between schedule views when the user has both memberships; must match a current role.}
+      responses: {'200': {description: Compact date-scoped timetable}}
+  /admin/schedules:
+    get:
+      summary: Read a bounded section, teacher, or room timetable
+      security: [{sessionCookie: []}]
+      responses: {'200': {description: Compact schedule projection}}
+  /admin/free-slots:
+    get:
+      summary: Calculate free intervals for a section, teacher, or room
+      security: [{sessionCookie: []}]
+      responses: {'200': {description: Free intervals after sessions and blocks}}
+  /admin/reallocations/analyze:
+    post:
+      summary: Record resource unavailability and generate valid schedule proposals
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'200': {description: Candidate proposals or admin-review items}}
+  /admin/reallocations/{reallocation_id}/decision:
+    post:
+      summary: Approve or reject a proposed schedule change
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'200': {description: Decision recorded}, '409': {description: Revalidation conflict}}
+  /admin/reallocations/{reallocation_id}/revert:
+    post:
+      summary: Revert an accepted schedule change when the original slot remains valid
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'200': {description: Change reverted}, '409': {description: Original slot unavailable}}
+  /admin/scheduling-policy:
+    get:
+      summary: Read reallocation policy
+      security: [{sessionCookie: []}]
+      responses: {'200': {description: Policy settings}}
+    put:
+      summary: Configure reallocation policy and ranking weights
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'200': {description: Policy updated}}
+  /admin/teacher-availability:
+    get:
+      summary: List bounded teacher availability blocks
+      security: [{sessionCookie: []}]
+      responses: {'200': {description: Availability rows}}
+    post:
+      summary: Record teacher availability; teachers may manage only themselves
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'201': {description: Availability recorded}}
+  /admin/teacher-availability/{availability_id}:
+    patch:
+      summary: Update availability; teachers may update only their own records
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: availability_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Availability updated}, '403': {description: Record is not owned by the caller}}
+  /admin/room-availability:
+    get:
+      summary: List bounded room availability blocks
+      security: [{sessionCookie: []}]
+      responses: {'200': {description: Availability rows}}
+    post:
+      summary: Record room availability
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'201': {description: Availability recorded}}
+  /admin/room-availability/{availability_id}:
+    patch:
+      summary: Update room availability (admin only)
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: availability_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Availability updated}, '403': {description: Admin role required}}
+  /admin/academic-events:
+    get:
+      summary: List up to 100 academic events
+      security: [{sessionCookie: []}]
+      responses: {'200': {description: Calendar events}}
+    post:
+      summary: Create an academic event
+      security: [{sessionCookie: [], csrfHeader: []}]
+      responses: {'201': {description: Event created}}
+  /admin/pending-lectures/{pending_id}/resolve:
+    post:
+      summary: Resolve a pending lecture after admin review
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: pending_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Pending lecture resolved}}
+  /admin/pending-lectures/{pending_id}/candidates:
+    get:
+      summary: Search bounded future slots for a pending lecture recovery
+      security: [{sessionCookie: []}]
+      parameters: [{in: path, name: pending_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Hard-constraint-checked recovery slots}}
+  /admin/pending-lectures/{pending_id}/propose-recovery:
+    post:
+      summary: Propose a validated slot for a pending lecture
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: pending_id, required: true, schema: {type: integer}}]
+      responses: {'201': {description: Recovery proposal}}
+  /class-sessions/{class_session_id}/attendance/open:
+    post:
+      summary: Open attendance for the actual dated class session
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: class_session_id, required: true, schema: {type: integer}}]
+      responses: {'201': {description: Attendance session created}, '409': {description: Session is not available}}
+  /teacher/class-sessions/{class_session_id}/attendance:
+    get:
+      summary: Read roster and marks for a session assigned to the caller
+      security: [{sessionCookie: []}]
+      parameters: [{in: path, name: class_session_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Enrolled roster with compact attendance statuses}}
+  /attendance-sessions/{attendance_session_id}/records/{student_id}:
+    put:
+      summary: Record or update one attendance status
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters:
+        - {in: path, name: attendance_session_id, required: true, schema: {type: integer}}
+        - {in: path, name: student_id, required: true, schema: {type: integer}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: {type: string, enum: [PRESENT, ABSENT, LATE, EXCUSED]}
+      responses: {'200': {description: Record saved}, '422': {description: Student is not enrolled in the session section}}
+  /attendance-sessions/{attendance_session_id}/close:
+    post:
+      summary: Close attendance and mark the completed class session
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: attendance_session_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Attendance closed}, '409': {description: Session has not ended}}
+  /students/me/attendance:
+    get:
+      summary: Read own subject and overall attendance percentages
+      security: [{sessionCookie: []}]
+      parameters:
+        - {in: query, name: from, schema: {type: string, format: date}}
+        - {in: query, name: to, schema: {type: string, format: date}}
+      responses: {'200': {description: Derived attendance summary; excused records excluded}}
+  /notifications:
+    get:
+      summary: List the caller's persisted notifications
+      security: [{sessionCookie: []}]
+      parameters:
+        - {in: query, name: limit, schema: {type: integer, minimum: 1, maximum: 100}}
+        - {in: query, name: before_id, schema: {type: integer}}
+        - {in: query, name: after_id, schema: {type: integer, minimum: 0}}
+      responses: {'200': {description: Bounded cursor page and unread count; after_id returns oldest-first changes}}
+  /notifications/{notification_id}/read:
+    put:
+      summary: Mark the caller's notification read
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: notification_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Read state saved}, '404': {description: Not found for caller}}
+  /admin/announcements:
+    post:
+      summary: Publish a scoped announcement and persist recipient notifications
+      security: [{sessionCookie: [], csrfHeader: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body, audience_scope]
+              properties:
+                title: {type: string, minLength: 1, maxLength: 200}
+                body: {type: string, minLength: 1, maxLength: 20000}
+                audience_scope: {type: string, enum: [ALL, STUDENTS, TEACHERS, SECTION]}
+                section_id: {type: integer}
+                expires_at: {type: string, format: date-time}
+      responses: {'201': {description: Announcement published}}
+  /announcements:
+    get:
+      summary: List announcements visible to the caller's roles and sections
+      security: [{sessionCookie: []}]
+      parameters:
+        - {in: query, name: limit, schema: {type: integer, minimum: 1, maximum: 100}}
+        - {in: query, name: before_id, schema: {type: integer}}
+      responses: {'200': {description: Bounded page of published and unexpired announcements}}
+  /admin/reports/attendance:
+    get:
+      summary: Read bounded per-student, per-subject attendance outcomes
+      security: [{sessionCookie: []}]
+      parameters: [{in: query, name: from, required: true, schema: {type: string, format: date}}, {in: query, name: to, required: true, schema: {type: string, format: date}}]
+      responses: {'200': {description: Attendance counts and derived percentages}}
+  /admin/reports/teacher-workload:
+    get:
+      summary: Read teacher workload and gaps between scheduled sessions
+      security: [{sessionCookie: []}]
+      parameters: [{in: query, name: from, required: true, schema: {type: string, format: date}}, {in: query, name: to, required: true, schema: {type: string, format: date}}]
+      responses: {'200': {description: Bounded workload and observed free gaps}}
+  /admin/reports/room-utilization:
+    get:
+      summary: Read scheduled room sessions and booked minutes
+      security: [{sessionCookie: []}]
+      parameters: [{in: query, name: from, required: true, schema: {type: string, format: date}}, {in: query, name: to, required: true, schema: {type: string, format: date}}]
+      responses: {'200': {description: Booked minutes; no unconfigured working-hours percentage is assumed}}
+  /admin/reports/sessions:
+    get:
+      summary: Count session states in a bounded date range
+      security: [{sessionCookie: []}]
+      parameters: [{in: query, name: from, required: true, schema: {type: string, format: date}}, {in: query, name: to, required: true, schema: {type: string, format: date}}]
+      responses: {'200': {description: Scheduled, completed, cancelled, and void counts}}
+  /admin/reports/curriculum-progress:
+    get:
+      summary: Derive required and completed subject hours by section
+      security: [{sessionCookie: []}]
+      parameters: [{in: query, name: from, required: true, schema: {type: string, format: date}}, {in: query, name: to, required: true, schema: {type: string, format: date}}]
+      responses: {'200': {description: Bounded curriculum progress from completed sessions}}
+  /admin/reallocations/{reallocation_id}/decision:
+    post:
+      summary: Approve or reject a full cascade group atomically
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: reallocation_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Group decision saved}, '409': {description: Group is stale or invalid}}
+  /admin/reallocations/{reallocation_id}/revert:
+    post:
+      summary: Revert an accepted cascade group atomically
+      security: [{sessionCookie: [], csrfHeader: []}]
+      parameters: [{in: path, name: reallocation_id, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Group reverted}, '409': {description: Original slots cannot be safely restored}}
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: student_system_session
+    csrfHeader:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+  schemas:
+    ApiErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, details]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items: {}
+            request_id:
+              type: [string, 'null']

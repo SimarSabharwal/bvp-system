@@ -1,0 +1,28 @@
+{
+  "format": "student-system-dev-seed-v1",
+  "purpose": "sample-derived-local-demo-only",
+  "notice": "Only literal sample identity and subject facts are included. Original sample passwords are deliberately omitted. No course/year/section/enrollment/room/qualification/assignment/timetable mappings are inferred.",
+  "academic_years": [],
+  "courses": [],
+  "subjects": [
+    { "code": "JP", "name": "Java Programming", "requires_lab": false },
+    { "code": "OS", "name": "Operating Systems", "requires_lab": false },
+    { "code": "SE", "name": "Software Engineering", "requires_lab": false },
+    { "code": "ST", "name": "Statistics", "requires_lab": false },
+    { "code": "SUM", "name": "Start-up Management", "requires_lab": false },
+    { "code": "LAB JP", "name": "Java Programming Lab", "requires_lab": true },
+    { "code": "LAB ORACLE", "name": "Oracle Lab", "requires_lab": true },
+    { "code": "YOGA", "name": "Yoga & Meditation", "requires_lab": false }
+  ],
+  "sections": [],
+  "rooms": [],
+  "students": [
+    { "login_id": "0251BCA001", "erp_id": "0251BCA001", "full_name": "Student Morning" },
+    { "login_id": "0251BCA101", "erp_id": "0251BCA101", "full_name": "Student Afternoon" }
+  ],
+  "teachers": [
+    { "login_id": "MKC", "faculty_code": "MKC", "full_name": "Dr. Mahesh Kumar Chaubey", "subject_codes": [] }
+  ],
+  "admins": [],
+  "timetable_versions": []
+}

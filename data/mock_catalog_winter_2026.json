@@ -1,0 +1,36 @@
+{
+  "source": "Winter 2026 Theory Examination Time Table, CBCS 2026, BCA and BBA Sem-I; catalog fields only. B subjects are synthetic placeholders.",
+  "exam_dates_and_times_imported": false,
+  "courses": [
+    {"code": "BCA", "name": "Bachelor of Computer Applications (Mock catalog, CBCS 2026)"},
+    {"code": "BBA", "name": "Bachelor of Business Administration (Mock catalog, CBCS 2026)"},
+    {"code": "B", "name": "B (Mock course; synthetic placeholder subjects)"}
+  ],
+  "subjects": [
+    {"course_code": "BCA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34344", "name": "Algorithms & Program Design Using C", "subject_type": "Compulsory"},
+    {"course_code": "BCA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34345", "name": "Mathematical Foundation", "subject_type": "Compulsory"},
+    {"course_code": "BCA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34346", "name": "Foundations of Computing", "subject_type": "Compulsory"},
+    {"course_code": "BCA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34347", "name": "Client-Side Web Technologies", "subject_type": "Compulsory"},
+    {"course_code": "BBA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34136", "name": "Principles of Management", "subject_type": "Compulsory"},
+    {"course_code": "BBA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34137", "name": "Business Communication", "subject_type": "Compulsory"},
+    {"course_code": "BBA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34138", "name": "Financial Accounting: Concepts & Practices", "subject_type": "Compulsory"},
+    {"course_code": "BBA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34139", "name": "Business Mathematics", "subject_type": "Compulsory"},
+    {"course_code": "BBA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34140", "name": "Micro Economics", "subject_type": "Optional 1"},
+    {"course_code": "BBA", "semester": 1, "curriculum_version": "CBCS 2026", "code": "34142", "name": "Environmental Studies", "subject_type": "Compulsory"},
+    {"course_code": "B", "semester": 1, "curriculum_version": "DEMO PLACEHOLDERS", "code": "B-DEMO-01", "name": "[DEMO PLACEHOLDER] B Subject 1 - replace with actual catalog", "subject_type": "Demo placeholder"},
+    {"course_code": "B", "semester": 1, "curriculum_version": "DEMO PLACEHOLDERS", "code": "B-DEMO-02", "name": "[DEMO PLACEHOLDER] B Subject 2 - replace with actual catalog", "subject_type": "Demo placeholder"},
+    {"course_code": "B", "semester": 1, "curriculum_version": "DEMO PLACEHOLDERS", "code": "B-DEMO-03", "name": "[DEMO PLACEHOLDER] B Subject 3 - replace with actual catalog", "subject_type": "Demo placeholder"},
+    {"course_code": "B", "semester": 1, "curriculum_version": "DEMO PLACEHOLDERS", "code": "B-DEMO-04", "name": "[DEMO PLACEHOLDER] B Subject 4 - replace with actual catalog", "subject_type": "Demo placeholder"}
+  ],
+  "sections": [
+    {"course_code": "BCA", "section_code": "M1", "shift": "MORNING"},
+    {"course_code": "BCA", "section_code": "A1", "shift": "AFTERNOON"},
+    {"course_code": "BBA", "section_code": "M1", "shift": "MORNING"},
+    {"course_code": "BBA", "section_code": "M2", "shift": "MORNING"},
+    {"course_code": "BBA", "section_code": "M3", "shift": "MORNING"},
+    {"course_code": "BBA", "section_code": "A1", "shift": "AFTERNOON"},
+    {"course_code": "BBA", "section_code": "A2", "shift": "AFTERNOON"},
+    {"course_code": "BBA", "section_code": "A3", "shift": "AFTERNOON"},
+    {"course_code": "B", "section_code": "M1", "shift": "MORNING"}
+  ]
+}

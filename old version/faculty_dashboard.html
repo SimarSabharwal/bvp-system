@@ -1,0 +1,124 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+<div class="dashboard">
+
+    <div class="welcome-card">
+
+        <h2>Welcome, {{ faculty.name }}</h2>
+
+        <p>Faculty Dashboard</p>
+
+        <p>{{ day }} | {{ now }}</p>
+
+    </div>
+
+    <br>
+
+    <div class="dashboard-grid">
+
+        <div class="card live-card">
+
+            <h2>🟢 Current Class</h2>
+
+            {% if current %}
+
+                <h3>{{ current.subject }}</h3>
+
+                <p><strong>Shift:</strong> {{ current.shift }}</p>
+
+                <p><strong>Room:</strong> {{ current.room }}</p>
+
+                <p>{{ current.start }} - {{ current.end }}</p>
+
+            {% else %}
+
+                <h3>No Class Running</h3>
+
+            {% endif %}
+
+        </div>
+
+        <div class="card next-card">
+
+            <h2>⏭ Next Class</h2>
+
+            {% if upcoming %}
+
+                <h3>{{ upcoming.subject }}</h3>
+
+                <p><strong>Shift:</strong> {{ upcoming.shift }}</p>
+
+                <p><strong>Room:</strong> {{ upcoming.room }}</p>
+
+                <p>{{ upcoming.start }} - {{ upcoming.end }}</p>
+
+            {% else %}
+
+                <h3>No More Classes Today</h3>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h2>📅 Today's Teaching Schedule</h2>
+
+        <table class="timetable">
+
+            <thead>
+
+                <tr>
+
+                    <th>Shift</th>
+                    <th>Time</th>
+                    <th>Subject</th>
+                    <th>Room</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for cls in timetable %}
+
+                <tr>
+
+                    <td>{{ cls.shift }}</td>
+
+                    <td>{{ cls.start }} - {{ cls.end }}</td>
+
+                    <td>{{ cls.subject }}</td>
+
+                    <td>{{ cls.room }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+setTimeout(function(){
+
+    location.reload();
+
+},60000);
+
+</script>
+
+{% endblock %}
